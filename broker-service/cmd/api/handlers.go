@@ -49,7 +49,7 @@ func (app *Config) authenticate(w http.ResponseWriter, auth AuthPayload) {
 		app.errorJson(w, err)
 	}
 
-	req, err := http.NewRequest("POST", "http://authentication-service/authenticate", bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", "http://authentication-service/auth", bytes.NewBuffer(data))
 	if err != nil {
 		app.errorJson(w, err)
 	}

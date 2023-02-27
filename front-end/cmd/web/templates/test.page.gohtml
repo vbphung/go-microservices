@@ -7,6 +7,7 @@
         <h1 class="mt-5">Test microservices</h1>
         <hr />
         <a id="brokerBtn" href="javascript:void(0);">Test Broker</a>
+        <a id="authBtn" href="javascript:void(0);">Test Auth</a>
         <div
           id="output"
           class="mt-5"
@@ -40,6 +41,7 @@
 {{ define "js" }}
   <script>
     let brokerBtn = document.getElementById("brokerBtn");
+    let authBtn = document.getElementById("authBtn");
     let output = document.getElementById("output");
     let sent = document.getElementById("payload");
     let received = document.getElementById("received");
@@ -61,6 +63,41 @@
         })
         .catch((err) => {
           output.innerHTML += `<br><strong>Broker Request Error:</strong> ${err}`;
+        });
+    });
+
+    authBtn.addEventListener("click", function () {
+      const payload = {
+        action: "auth",
+        auth: {
+          email: "admin@example.com",
+          password: "verysecret",
+        },
+      };
+
+      const hds = new Headers();
+      hds.append("Content-Type", "application/json");
+
+      const body = {
+        method: "POST",
+        headers: hds,
+        body: JSON.stringify(payload),
+      };
+
+      fetch("http:\/\/localhost:8080/handle", body)
+        .then((res) => res.json())
+        .then((data) => {
+          sent.innerHTML = JSON.stringify(payload, undefined, 4);
+          received.innerHTML = JSON.stringify(data, undefined, 4);
+
+          if (data.error) {
+            output.innerHTML += `<br><strong>Error:</strong> ${data.error}`;
+          } else {
+            output.innerHTML += `<br><strong>Message:</strong> ${data.message}`;
+          }
+        })
+        .catch((err) => {
+          output.innerHTML += `<br><strong>Request Error:</strong> ${err}`;
         });
     });
   </script>
