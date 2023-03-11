@@ -8,6 +8,7 @@
         <hr />
         <a id="brokerBtn" href="javascript:void(0);">Test Broker</a>
         <a id="authBtn" href="javascript:void(0);">Test Auth</a>
+        <a id="logBtn" href="javascript:void(0);">Test Log</a>
         <div
           id="output"
           class="mt-5"
@@ -42,9 +43,45 @@
   <script>
     let brokerBtn = document.getElementById("brokerBtn");
     let authBtn = document.getElementById("authBtn");
+    let logBtn = document.getElementById("logBtn");
     let output = document.getElementById("output");
     let sent = document.getElementById("payload");
     let received = document.getElementById("received");
+
+    logBtn.addEventListener("click", function () {
+      const pl = {
+        action: "log",
+        log: {
+          name: "event",
+          data: "Some kind of logging data",
+        },
+      };
+
+      const hds = new Headers();
+      hds.append("Content-Type", "application/json");
+
+      const body = {
+        method: "POST",
+        headers: hds,
+        body: JSON.stringify(pl),
+      };
+
+      fetch("http:\/\/localhost:8080/handle", body)
+        .then((res) => res.json())
+        .then((data) => {
+          sent.innerHTML = JSON.stringify(payload, undefined, 4);
+          received.innerHTML = JSON.stringify(data, undefined, 4);
+
+          if (data.error) {
+            output.innerHTML += `<br><strong>Error:</strong> ${data.error}`;
+          } else {
+            output.innerHTML += `<br><strong>Message:</strong> ${data.message}`;
+          }
+        })
+        .catch((err) => {
+          output.innerHTML += `<br><strong>Request Error:</strong> ${err}`;
+        });
+    });
 
     brokerBtn.addEventListener("click", function () {
       const body = { method: "POST" };
