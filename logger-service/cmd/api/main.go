@@ -15,7 +15,7 @@ import (
 const (
 	webPort  = "80"
 	rpcPort  = "5001"
-	mongoUri = ""
+	mongoUri = "mongodb://localhost:27017"
 	grpcPort = "50001"
 )
 
@@ -48,17 +48,15 @@ func main() {
 		Models: data.New(client),
 	}
 
-	go app.serve()
-}
-
-func (app *Config) serve() {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
 		Handler: app.routes(),
 	}
 
-	if err := srv.ListenAndServe(); err != nil {
+	if err = srv.ListenAndServe(); err != nil {
 		log.Panicln("Error server: ", err)
+	} else {
+		log.Println("Server listen to: ", webPort)
 	}
 }
 
