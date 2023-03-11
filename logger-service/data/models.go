@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -80,4 +81,68 @@ func All() ([]*LogEntry, error) {
 	}
 
 	return logs, nil
+}
+
+func GetOne(id string) (*LogEntry, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	clt := client.Database("logs").Collection("logs")
+
+	docID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		log.Println("Error log getOne: ", err)
+		return nil, err
+	}
+
+	var logEntr LogEntry
+
+	err = clt.FindOne(ctx, bson.M{"_id": docID}).Decode(&logEntr)
+	if err != nil {
+		log.Println("Error log decode: ", err)
+		return nil, err
+	}
+
+	return &logEntr, nil
+}
+
+func DropClt() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	clt := client.Database("logs").Collection("logs")
+
+	if err := clt.Drop(ctx); err != nil {
+		log.Println("Error logs dropClt: ", err)
+		return err
+	}
+
+	return nil
+}
+
+func Update(logEntr LogEntry) (*mongo.UpdateResult, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
+	clt := client.Database("logs").Collection("logs")
+
+	docID, err := primitive.ObjectIDFromHex(logEntr.ID)
+	if err != nil {
+		log.Println("Error log getDocID: ", err)
+		return nil, err
+	}
+
+	res, err := clt.UpdateOne(ctx, bson.M{"_id": docID}, bson.D{{
+		"$set", bson.D{
+			{"name", logEntr.Name},
+			{"data", logEntr.Data},
+			{"updated_at", time.Now()},
+		},
+	}})
+	if err != nil {
+		log.Println("Error log update: ", err)
+		return nil, err
+	}
+
+	return res, nil
 }
