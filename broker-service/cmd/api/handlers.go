@@ -58,7 +58,7 @@ func (app *Config) log(w http.ResponseWriter, logPl LogPayload) {
 		return
 	}
 
-	logServiceUrl := "http://log-service/log"
+	logServiceUrl := "http://logger-service/log"
 
 	req, err := http.NewRequest("POST", logServiceUrl, bytes.NewBuffer(data))
 	if err != nil {
