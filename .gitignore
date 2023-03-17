@@ -3,5 +3,6 @@
 **/frontApp
 **/logApp
 **/mailApp
+**/listenerApp
 
 **/db-data
