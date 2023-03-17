@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"listener/event"
 	"log"
 	"math"
 	"os"
@@ -25,9 +26,21 @@ func main() {
 
 	// start listening to messages
 
+	log.Println("Listen and consume RabbitMQ messages...")
+
 	// create consumer
 
+	csm, err := event.NewConsumer(conn)
+	if err != nil {
+		log.Panicf("Cannot create consumer: %s\n", err)
+	}
+
 	// watch the queue and consume events
+
+	err = csm.Listen([]string{"log.INFO", "log.WARNING", "log.ERROR"})
+	if err != nil {
+		log.Panicf("Consumer cannot listen: %s\n", err)
+	}
 }
 
 func connect() (*amqp.Connection, error) {
