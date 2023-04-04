@@ -59,6 +59,10 @@ func main() {
 
 	go app.rpcListen()
 
+	// start gRpc server
+
+	go app.gRpcListen()
+
 	// start web server
 
 	srv := &http.Server{
