@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/rpc"
 )
 
 type RequestPayload struct {
@@ -54,7 +55,8 @@ func (app Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	case "auth":
 		app.authenticate(w, reqPl.Auth)
 	case "log":
-		app.rabbitLog(w, reqPl.Log)
+		// app.rabbitLog(w, reqPl.Log)
+		app.rpcLog(w, reqPl.Log)
 	case "mail":
 		app.sendMail(w, reqPl.Mail)
 	default:
@@ -97,6 +99,34 @@ func (app *Config) sendMail(w http.ResponseWriter, mailPl MailPayload) {
 	app.writeJson(w, http.StatusAccepted, jsonResp{
 		Error:   false,
 		Message: "Sent mail to " + mailPl.To,
+	})
+}
+
+type RpcPayload struct {
+	Name string
+	Data string
+}
+
+func (app *Config) rpcLog(w http.ResponseWriter, logPl LogPayload) {
+	cl, err := rpc.Dial("tcp", "logger-service:5001")
+	if err != nil {
+		app.errorJson(w, err)
+		return
+	}
+
+	var resp string
+
+	if err = cl.Call("RpcServer.Log", RpcPayload{
+		Name: logPl.Name,
+		Data: logPl.Data,
+	}, &resp); err != nil {
+		app.errorJson(w, err)
+		return
+	}
+
+	app.writeJson(w, http.StatusAccepted, jsonResp{
+		Error:   false,
+		Message: "Logged via Rpc!",
 	})
 }
 
