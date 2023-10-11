@@ -9,6 +9,7 @@
         <a id="brokerBtn" href="javascript:void(0);">Test Broker</a>
         <a id="authBtn" href="javascript:void(0);">Test Auth</a>
         <a id="logBtn" href="javascript:void(0);">Test Log</a>
+        <a id="gRpcLogBtn" href="javascript:void(0);">Test gRpc Log</a>
         <a id="mailBtn" href="javascript:void(0);">Test Mail</a>
         <div
           id="output"
@@ -45,12 +46,13 @@
     let brokerBtn = document.getElementById("brokerBtn");
     let authBtn = document.getElementById("authBtn");
     let logBtn = document.getElementById("logBtn");
+    let gRpcLogBtn = document.getElementById("gRpcLogBtn");
     let mailBtn = document.getElementById("mailBtn");
     let output = document.getElementById("output");
     let sent = document.getElementById("payload");
     let received = document.getElementById("received");
 
-    const sendRequest = (payload) => {
+    const sendRequest = (payload, apiUrl = "/handle") => {
       const hds = new Headers();
       hds.append("Content-Type", "application/json");
 
@@ -60,7 +62,7 @@
         body: JSON.stringify(payload),
       };
 
-      fetch("http:\/\/localhost:8080/handle", body)
+      fetch("http://localhost:8080" + apiUrl, body)
         .then((res) => res.json())
         .then((data) => {
           sent.innerHTML = JSON.stringify(payload, undefined, 4);
@@ -76,6 +78,18 @@
           output.innerHTML += `<br><strong>Request Error:</strong> ${err}`;
         });
     };
+
+    gRpcLogBtn.addEventListener("click", function () {
+      const pl = {
+        action: "log",
+        log: {
+          name: "event",
+          data: "Some kind of logging data",
+        },
+      };
+
+      sendRequest(pl, "/log");
+    });
 
     mailBtn.addEventListener("click", function () {
       const pl = {
