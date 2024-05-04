@@ -116,7 +116,7 @@ func logEvent(pl Payload) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("Error logging: %d", resp.StatusCode)
+		return fmt.Errorf("http: %d", resp.StatusCode)
 	}
 
 	return nil

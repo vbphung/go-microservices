@@ -142,7 +142,6 @@ func (app *Config) gRpcLog(w http.ResponseWriter, req *http.Request) {
 			Data: reqPl.Log.Data,
 		},
 	})
-
 	if err != nil {
 		app.errorJson(w, err)
 		return
@@ -163,10 +162,7 @@ func (app *Config) rpcLog(w http.ResponseWriter, logPl LogPayload) {
 
 	var resp string
 
-	if err = cl.Call("RpcServer.Log", RpcPayload{
-		Name: logPl.Name,
-		Data: logPl.Data,
-	}, &resp); err != nil {
+	if err = cl.Call("RpcServer.Log", RpcPayload(logPl), &resp); err != nil {
 		app.errorJson(w, err)
 		return
 	}
